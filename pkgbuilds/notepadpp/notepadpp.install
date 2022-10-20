@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+pkgname=notepadpp
+_pkgname=notepad-plus-plus
+pkgver=8.4.4
+pkgrel=2
+pkgdesc="A free source code editor for Windows - (${winarch}-bit)"
+arch=('x86_64')
+url="https://${_pkgname}.org/"
+license=('GPL2')
+arch=('i686' 'x86_64')
+depends=('wine' 'sh' 'fuse-overlayfs')
+makedepends=('unzip')
+src[1]="https://aur.archlinux.org/cgit/aur.git/plain/notepadpp?h=notepadpp"
+src[2]="https://aur.archlinux.org/cgit/aur.git/plain/notepadpp.desktop?h=notepadpp"
+src[3]="https://aur.archlinux.org/cgit/aur.git/plain/notepadpp.png?h=notepadpp"
+src[4]="https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.4.4/npp.8.4.4.portable.x64.zip"
+
+package() {
+
+    install -d -m755 "${pkgdir}/usr/share/${pkgname}"
+
+    unzip "${srcdir}/npp.${pkgver}.${winarch}.zip" -d "${pkgdir}/usr/share/${pkgname}"
+
+    rm -rf "${pkgdir}/usr/share/${pkgname}/updater" \
+           "${pkgdir}/usr/share/${pkgname}/license.txt" \
+
+    find "${pkgdir}/usr/share/${pkgname}" -type d -exec chmod 755 "{}" \;
+    find "${pkgdir}/usr/share/${pkgname}" -type f -exec chmod 644 "{}" \;
+
+    install -D -m755 "${srcdir}/notepadpp" "${pkgdir}/usr/bin/notepadpp"
+    install -D -m644 "${srcdir}/notepadpp.png" "${pkgdir}/usr/share/pixmaps/notepadpp.png"
+    install -D -m644 "${srcdir}/notepadpp.desktop" "${pkgdir}/usr/share/applications/notepadpp.desktop"
+}
+
+pkgdir="/opt/local/aur/pkg/${pkgname}"
+srcdir="${pkgdir}/src"
+mkdir -p $pkgdir
+mkdir -p $srcdir
+cd $srcdir
+wget -c ${src[1]} -O notepadpp 
+wget -c ${src[2]} -O notepadpp.desktop
+wget -c ${src[3]} -O notepadpp.png
+wget -c ${src[4]} -O npp.${pkgver}.64.zip
+
+
+cd $pkgdir
+package
+ln -s "${pkgdir}/usr/bin/${pkgname}" "/opt/local/bin/${pkgname}"
